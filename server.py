@@ -96,16 +96,6 @@ def Order_Coffee():
     print(TPL.queued_coffees)
     return render_template_string(TPL.toString())
 
-
-@app.route('/status')
-def machine_status():
-    global rotator_position, queued_coffees
-    return jsonify({
-        'rotator_position': rotator_position,
-        'queued_coffees': queued_coffees
-    })
-
-
 @app.route("/RotateMotorToPosition")
 def RotateMotorToPosition():
     """ Rotate the motor to an absolute position."""
