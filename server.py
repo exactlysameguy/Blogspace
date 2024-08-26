@@ -15,8 +15,8 @@ import time
 import flask
 from flask import Flask, render_template_string, request, jsonify, url_for, views
 
-# import RPi.GPIO as GPIO
-# from RpiMotorLib import RpiMotorLib
+import RPi.GPIO as GPIO
+from RpiMotorLib import RpiMotorLib
 
 # define GPIO pins
 GPIO_pins = (14, 15, 18)  # Microstep Resolution MS1-MS3 -> GPIO Pin
@@ -25,10 +25,10 @@ step = 21  # Step -> GPIO Pin
 
 class CoffeeRotatorMotor:
     def __init__(self) :
-        # RotatorMotor= RpiMotorLib.A4988Nema(direction, step, GPIO_pins, "A4988")
-        self.CurrentPosition = 0
-        self.SemaphoreBusy = False
-        self.NumberOfCups = 4
+       self.RotatorMotor= RpiMotorLib.A4988Nema(direction, step, GPIO_pins, "A4988")
+       self.CurrentPosition = 0
+       self.SemaphoreBusy = False
+       self.NumberOfCups = 4
 
 
 class CoffeeHtml:
@@ -88,10 +88,9 @@ def flush_machine():
     # Spülvorgang durchführen
     return 'Machine flushed'
 
-
 @app.route('/OrderCoffee')
 def Order_Coffee():
-
+    """ Add a coffee to the queue"""
     TPL.queued_coffees.append(request.args["coffee"])
     print(TPL.queued_coffees)
     return render_template_string(TPL.toString())
@@ -111,12 +110,11 @@ def RotateMotorToPosition():
     if waytogo > 0:
         myRotatorMotor.CurrentPosition += waytogo
         #            motor_go(clockwise, steptype, steps, stepdelay, verbose, initdelay)
-        # RotatorMotor.motor_go(True, "Full", 600, int(abs(waytogo)*degrees), False, .05)
-
+        myRotatorMotor.RotatorMotor.motor_go(True, "Full", 600, int(abs(waytogo)*degrees), False, .05)
     else:
         myRotatorMotor.CurrentPosition -= waytogo
         #            motor_go(clockwise, steptype, steps, stepdelay, verbose, initdelay)
-        # RotatorMotor.motor_go(False, "Full", 600, int(abs(waytogo)*degrees), False, .05)
+        myRotatorMotor.RotatorMotor.motor_go(False, "Full", 600, int(abs(waytogo)*degrees), False, .05)
     TPL.updateHtml(ziel)
     myRotatorMotor.SemaphoreBusy = False
     return render_template_string(TPL.toString())
